@@ -5,7 +5,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>order-service</module>
-    </modules>
+		<module>payment-service</module>
+		<module>common-dtos</module>
+	</modules>
     <parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
