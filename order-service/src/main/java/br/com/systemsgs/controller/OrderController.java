@@ -5,10 +5,9 @@ import br.com.systemsgs.entity.PurchaseOrder;
 import br.com.systemsgs.service.OrderService;
 import org.junit.jupiter.api.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/order")
@@ -20,6 +19,11 @@ public class OrderController {
     @PostMapping(value = "/create")
     public PurchaseOrder createOrder(@RequestBody OrderRequestDTO orderRequestDTO){
         return orderService.createOrder(orderRequestDTO);
+    }
+
+    @GetMapping(value = "/")
+    public List<PurchaseOrder> getOrders(){
+        return orderService.getAllOrders();
     }
 
 }
