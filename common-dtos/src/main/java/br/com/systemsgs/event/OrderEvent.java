@@ -1,12 +1,16 @@
 package br.com.systemsgs.event;
 
 import br.com.systemsgs.dto.OrderRequestDTO;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.UUID;
 
+@AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class OrderEvent implements Event{
 
     private UUID eventId = UUID.randomUUID();
