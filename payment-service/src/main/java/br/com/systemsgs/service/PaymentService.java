@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,19 +35,26 @@ public class PaymentService {
                 new UserBalance(105, 999)).collect(Collectors.toList()));
     }
 
+    @Transactional
     public PaymentEvent newOrderEvent(OrderEvent orderEvent) {
         OrderRequestDTO orderRequestDTO = orderEvent.getOrderRequestDTO();
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(orderRequestDTO.getOrderId(), orderRequestDTO.getUserId(), orderRequestDTO.getAmount());
 
-        userBalanceRepository.findById(orderRequestDTO.getUserId()).filter(ub -> ub.getPrice()> orderRequestDTO.getAmount())
+        return userBalanceRepository.findById(orderRequestDTO.getUserId()).filter(ub -> ub.getPrice()> orderRequestDTO.getAmount())
                 .map(ub ->{
                     ub.setPrice(ub.getPrice()- orderRequestDTO.getAmount());
                     userTransactionRepository.save(new UserTransaction(orderRequestDTO.getOrderId(), orderRequestDTO.getUserId(), orderRequestDTO.getAmount()));
                     return new PaymentEvent(paymentRequestDTO, PaymentStatus.PAYMENT_COMPLETED);
                 }).orElse(new PaymentEvent(paymentRequestDTO, PaymentStatus.PAYMENT_FAILED));
-
     }
 
-    public PaymentEvent cancelOrderEvent(OrderEvent orderEvent) {
-    }
+    @Transactional
+    public void cancelOrderEvent(OrderEvent orderEvent) {
+        userTransactionRepository.findById(orderEvent.getOrderRequestDTO().getOrderId())
+                .ifPresent(ut ->{
+                    userTransactionRepository.delete(ut);
+                    userTransactionRepository.findById(ut.getUserId())
+                            .ifPresent(ub-> ub.setAmount(ub.getAmount() + ut.getAmount()));
+                });
+        }
 }
